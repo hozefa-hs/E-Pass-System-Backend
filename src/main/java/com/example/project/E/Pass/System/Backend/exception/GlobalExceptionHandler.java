@@ -24,6 +24,16 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(PassAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handlePassAlreadyExistsException(PassAlreadyExistsException ex) {
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(PassNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePassNotFoundException(PassNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
