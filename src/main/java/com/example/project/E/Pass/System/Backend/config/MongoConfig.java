@@ -2,6 +2,8 @@ package com.example.project.E.Pass.System.Backend.config;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -19,6 +21,11 @@ public class MongoConfig {
             throw new IllegalStateException("MongoDB URI is not configured. Set 'spring.mongodb.uri' (or 'spring.data.mongodb.uri').");
         }
         return MongoClients.create(uri);
+    }
+
+    @Bean
+    public GridFSBucket gridFSBucket(MongoClient mongoClient) {
+        return GridFSBuckets.create(mongoClient.getDatabase("e-pass-system"));
     }
 
 }

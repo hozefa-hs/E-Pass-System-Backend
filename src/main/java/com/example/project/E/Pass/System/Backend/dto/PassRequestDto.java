@@ -13,4 +13,6 @@ public class PassRequestDto {
     
     @NotNull(message = "Duration is required")
     private PassDuration duration;
+    
+    // Document is uploaded separately via DocumentController
 }

@@ -22,6 +22,18 @@ public class PassResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isActive;
+    private DocumentMetadata document;
+    
+    @Data
+    @AllArgsConstructor
+    public static class DocumentMetadata {
+        private String documentId;
+        private String fileName;
+        private String fileType;
+        private String fileSize;
+        private String documentType;
+        private String uploadDate;
+    }
     
     public static PassResponseDto fromEntity(com.example.project.E.Pass.System.Backend.entity.Pass pass) {
         return new PassResponseDto(
@@ -34,7 +46,8 @@ public class PassResponseDto {
             pass.getValidTill(),
             pass.getCreatedAt(),
             pass.getUpdatedAt(),
-            pass.isActive()
+            pass.isActive(),
+            null // Document metadata set separately
         );
     }
 }
