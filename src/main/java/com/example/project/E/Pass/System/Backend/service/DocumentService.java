@@ -28,12 +28,13 @@ public class DocumentService {
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final String[] ALLOWED_CONTENT_TYPES = {
-        "application/pdf",
-        "image/png"
+        "image/png",
+        "image/jpeg"
     };
     private static final String[] ALLOWED_EXTENSIONS = {
-        ".pdf",
-        ".png"
+        ".png",
+        ".jpg",
+        ".jpeg"
     };
 
     public DocumentEntity uploadDocument(String passId, MultipartFile file, DocumentType documentType) {
@@ -111,13 +112,13 @@ public class DocumentService {
         // Validate content type
         String contentType = file.getContentType();
         if (contentType == null || !Arrays.asList(ALLOWED_CONTENT_TYPES).contains(contentType)) {
-            throw new InvalidDocumentException("Invalid file type. Only PDF and PNG files are allowed");
+            throw new InvalidDocumentException("Invalid file type. Only PNG, JPG, and JPEG files are allowed");
         }
 
         // Validate file extension
         String fileName = file.getOriginalFilename();
         if (fileName == null || !hasAllowedExtension(fileName)) {
-            throw new InvalidDocumentException("Invalid file extension. Only .pdf and .png files are allowed");
+            throw new InvalidDocumentException("Invalid file extension. Only .png, .jpg, and .jpeg files are allowed");
         }
     }
 
