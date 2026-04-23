@@ -86,7 +86,15 @@ public class DocumentService {
     public byte[] downloadDocumentByPassId(String passId) {
         DocumentEntity documentEntity = documentRepository.findByPassId(passId)
                 .orElseThrow(() -> new DocumentNotFoundException("Document not found for pass: " + passId));
-        return downloadDocument(documentEntity.getId());
+
+        try {
+            ObjectId objectId = new ObjectId(documentEntity.getGridFsId());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            gridFSBucket.downloadToStream(objectId, outputStream);
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new DocumentNotFoundException("Failed to download document: " + e.getMessage());
+        }
     }
 
     public DocumentEntity getDocumentByPassId(String passId) {
