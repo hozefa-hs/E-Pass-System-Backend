@@ -2,8 +2,11 @@ package com.example.project.E.Pass.System.Backend.service;
 
 import com.example.project.E.Pass.System.Backend.dto.PassRequestDto;
 import com.example.project.E.Pass.System.Backend.dto.PassResponseDto;
+import com.example.project.E.Pass.System.Backend.dto.ValidationResponseDto;
 import com.example.project.E.Pass.System.Backend.entity.Pass;
+import com.example.project.E.Pass.System.Backend.enums.PassDuration;
 import com.example.project.E.Pass.System.Backend.enums.PassStatus;
+import com.example.project.E.Pass.System.Backend.enums.PassType;
 import com.example.project.E.Pass.System.Backend.exception.PassAlreadyExistsException;
 import com.example.project.E.Pass.System.Backend.exception.PassNotFoundException;
 import com.example.project.E.Pass.System.Backend.repository.PassRepository;
@@ -95,5 +98,52 @@ public class PassService {
     public boolean hasActiveOrPendingPass(String userId) {
         return passRepository.existsByUserIdAndStatusNotIn(userId, 
                 List.of(PassStatus.REJECTED));
+    }
+
+    public ValidationResponseDto validatePass(String passId) {
+        Pass pass = passRepository.findById(passId)
+                .orElseThrow(() -> new PassNotFoundException("Pass not found: " + passId));
+
+        LocalDateTime now = LocalDateTime.now();
+        boolean isValid = false;
+        String message = "";
+
+        // Case 1: Valid Pass
+        if (pass.getStatus() == PassStatus.APPROVED &&
+            pass.getValidFrom() != null &&
+            pass.getValidTill() != null &&
+            !now.isBefore(pass.getValidFrom()) &&
+            !now.isAfter(pass.getValidTill())) {
+            isValid = true;
+            message = "PASS VALID - Allow Travel";
+        }
+        // Case 2: Pending Pass
+        else if (pass.getStatus() == PassStatus.PENDING) {
+            isValid = false;
+            message = "PASS PENDING - Deny Travel";
+        }
+        // Case 3: Expired/Invalid Pass
+        else {
+            isValid = false;
+            if (pass.getStatus() == PassStatus.REJECTED) {
+                message = "PASS REJECTED - Deny Travel";
+            } else if (pass.getValidFrom() != null && now.isBefore(pass.getValidFrom())) {
+                message = "PASS NOT YET VALID - Deny Travel";
+            } else if (pass.getValidTill() != null && now.isAfter(pass.getValidTill())) {
+                message = "PASS EXPIRED - Deny Travel";
+            } else {
+                message = "PASS INVALID - Deny Travel";
+            }
+        }
+
+        return ValidationResponseDto.builder()
+                .passId(passId)
+                .valid(isValid)
+                .status(pass.getStatus())
+                .passType(pass.getPassType())
+                .passDuration(pass.getDuration())
+                .message(message)
+                .validatedAt(now)
+                .build();
     }
 }
